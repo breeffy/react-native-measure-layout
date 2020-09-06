@@ -1,4 +1,4 @@
-# React Native Text Size
+# React Native Measure Layout
 
 [![npm Version][npm-badge]][npm-url]
 [![License][license-badge]][license-url]
@@ -437,9 +437,10 @@ Thanks for your support!
 
 ## License
 
-The [BSD 2-Clause](LICENSE) "Simplified" License.
+The [Apache-2.0](LICENSE) license.
 
 &copy; 2018-2019, Alberto Martínez. All rights reserved.
+&copy; 2020, Victor Malov. All rights reserved.
 
 [npm-badge]:      https://img.shields.io/npm/v/react-native-text-size.svg
 [npm-url]:        https://www.npmjs.com/package/react-native-text-size
