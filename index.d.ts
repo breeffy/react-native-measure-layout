@@ -129,6 +129,24 @@ declare module "react-native-text-size" {
     lineInfoForLine?: number;
   }
 
+  export interface TSMeasureTextsLengthsParams extends TSFontSpecs {
+    /**
+     * This is the only required parameter.
+     * Text string may include _emojis_ or be empty.
+     */
+    texts: string[]
+    /**
+     * Restrict the width. The resulting height will vary depending on the
+     * automatic flow of the text.
+     */
+    widths: number[];
+    /**
+     * To respect the user' setting of large fonts (i.e. use SP units).
+     * @default true
+     */
+    allowFontScaling?: boolean;
+  }
+
   export type TSMeasureResult = {
     /**
      * Total used width. It may be less or equal to the `width` option.
@@ -171,8 +189,11 @@ declare module "react-native-text-size" {
     };
   }
 
+  type TSMeasureTextsLinesResult = number[]
+
   interface TextSizeStatic {
     measure(params: TSMeasureParams): Promise<TSMeasureResult>;
+    measureTextsLines(params: TSMeasureTextsLengthsParams): Promise<TSMeasureTextsLinesResult>
     flatHeights(params: TSHeightsParams): Promise<number[]>;
     specsForTextStyles(): Promise<{ [key: string]: TSFontForStyle }>;
     fontFromSpecs(specs?: TSFontSpecs): Promise<TSFontInfo>;
