@@ -37,6 +37,9 @@ class RNTextSizeModule extends ReactContextBaseJavaModule {
     private static final float SPACING_MULTIPLIER = 1f;
 
     private static final String E_MISSING_TEXT = "E_MISSING_TEXT";
+    private static final String E_MISSING_WIDTH = "E_MISSING_WIDTH";
+    private static final String E_INVALID_SIZES = "E_INVALID_SIZES";
+    private static final String E_INVALID_TYPE = "E_INVALID_TYPE";
     private static final String E_MISSING_PARAMETER = "E_MISSING_PARAMETER";
     private static final String E_UNKNOWN_ERROR = "E_UNKNOWN_ERROR";
 
@@ -248,6 +251,106 @@ class RNTextSizeModule extends ReactContextBaseJavaModule {
                 }
 
                 result.pushDouble(layout.getHeight() / density);
+            }
+
+            promise.resolve(result);
+        } catch (Exception e) {
+            promise.reject(E_UNKNOWN_ERROR, e);
+        }
+    }
+
+    // https://stackoverflow.com/questions/3654321/measuring-text-height-to-be-drawn-on-canvas-android
+    @SuppressWarnings("unused")
+    @ReactMethod
+    public void measureTextsLines(@Nullable final ReadableMap specs, final Promise promise) {
+        final RNTextSizeConf conf = getConf(specs, promise, true);
+        if (conf == null) {
+            return;
+        }
+
+        final ReadableArray texts = conf.getArray("texts");
+        if (texts == null) {
+            promise.reject(E_MISSING_TEXT, "Missing required texts, must be an array.");
+            return;
+        }
+
+        final ReadableArray widths = conf.getArray("widths");
+        if (widths == null) {
+            promise.reject(E_MISSING_WIDTH, "Missing required widths, must be an array.");
+            return;
+        }
+
+        if (texts.size() != widths.size()) {
+            promise.reject(E_INVALID_SIZES, "Sizes of texts and widths arrays are not equal.");
+            return;
+        }
+
+
+
+        final float density = getCurrentDensity();
+        final boolean includeFontPadding = conf.includeFontPadding;
+        final int textBreakStrategy = conf.getTextBreakStrategy();
+
+        final WritableArray result = Arguments.createArray();
+
+        final SpannableStringBuilder sb = new SpannableStringBuilder(" ");
+        RNTextSizeSpannedText.spannedFromSpecsAndText(mReactContext, conf, sb);
+
+        final TextPaint textPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
+        Layout layout;
+        try {
+
+            for (int ix = 0; ix < texts.size(); ix++) {
+
+                // If this element is not a string return error
+                final ReadableType textType = texts.getType(ix);
+                if (textType != ReadableType.String) {
+                    promise.reject(E_INVALID_TYPE, "Value in texts array is not a string.");
+                    return;
+                }
+
+                final String text = texts.getString(ix);
+
+                // If empty, return the minimum height of <Text> components
+                if (text.isEmpty()) {
+                    result.pushDouble(minimalHeight(density, includeFontPadding));
+                    continue;
+                }
+
+                // Reset the SB text, the attrs will expand to its full length
+                sb.replace(0, sb.length(), text);
+
+                int dipWidth;
+
+                final ReadableType widthType = widths.getType(ix);
+                if (widthType == ReadableType.Number) {
+                    dipWidth = (int) Math.round(widths.getDouble(ix) * density);
+                } else {
+                    promise.reject(E_INVALID_TYPE, "Value in widths array is not a number.");
+                    return;
+                }
+
+                if (Build.VERSION.SDK_INT >= 23) {
+                    layout = StaticLayout.Builder.obtain(sb, 0, sb.length(), textPaint, dipWidth )
+                            .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+                            .setBreakStrategy(textBreakStrategy)
+                            .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NORMAL)
+                            .setIncludePad(includeFontPadding)
+                            .setLineSpacing(SPACING_ADDITION, SPACING_MULTIPLIER)
+                            .build();
+                } else {
+                    layout = new StaticLayout(
+                            sb,
+                            textPaint,
+                            dipWidth,
+                            Layout.Alignment.ALIGN_NORMAL,
+                            SPACING_MULTIPLIER,
+                            SPACING_ADDITION,
+                            includeFontPadding
+                    );
+                }
+
+                result.pushInt(layout.getLineCount());
             }
 
             promise.resolve(result);
