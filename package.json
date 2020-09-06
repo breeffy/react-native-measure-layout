@@ -1,6 +1,6 @@
 {
-  "name": "react-native-text-size",
-  "version": "4.0.0-rc.1",
+  "name": "@breeffy/react-native-measure-layout",
+  "version": "0.0.1",
   "description": "Measure text accurately before laying it out and get font information from your App",
   "main": "index.js",
   "keywords": [
@@ -16,11 +16,11 @@
     "multiline",
     "fonts"
   ],
-  "repository": "https://github.com/aMarCruz/react-native-text-size.git",
-  "bugs": "https://github.com/aMarCruz/react-native-text-size/issues",
-  "homepage": "https://github.com/aMarCruz/react-native-text-size",
-  "author": "aMarCruz <amarcruzbox_git@yahoo.com>",
-  "license": "BSD-2-Clause",
+  "repository": "https://github.com/breeffy/react-native-measure-layout",
+  "bugs": "https://github.com/breeffy/react-native-measure-layout/issues",
+  "homepage": "https://github.com/breeffy/react-native-measure-layout",
+  "author": "Victor Malov <victor.malov@breeffy.com>",
+  "license": "Apache-2.0",
   "scripts": {
     "clean": "rm -rf $TMPDIR/react-* && watchman watch-del-all && cd android && ./gradlew clean"
   },
